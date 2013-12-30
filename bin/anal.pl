@@ -185,6 +185,13 @@ $server->reg_cb(
 
         $dbh->disconnect if $dbh;
     },
+    exit => sub{
+        my ($res_cv, $args)= @_;
+
+        $res_cv->result('eixting ...');
+
+        exit 0;
+    },
 );
 
 AnyEvent->condvar->recv;

@@ -1,6 +1,6 @@
 "
 " Author: kamichidu
-" Last Change: 11-Dec-2013.
+" Last Change: 30-Dec-2013.
 " Lisence: The MIT License (MIT)
 " 
 " Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,6 +26,7 @@ set cpo&vim
 
 let s:V= vital#of('neocomplete-sqlcompl')
 let s:L= s:V.import('Data.List')
+let s:P= s:V.import('Process')
 unlet s:V
 
 let s:source= {
@@ -39,8 +40,21 @@ function! neocomplete#sources#sqlcompl#define()
     return s:source
 endfunction
 
+function! s:source.hooks.on_init(context)
+    echomsg 'sqlcompl server is launched!'
+    call sqlcompl#launch_server()
+    augroup NeocompleteSqlcompl
+        autocmd!
+        autocmd VimLeavePre * echomsg 'sqlcompl server is terminated!' | call sqlcompl#terminate_server()
+    augroup END
+endfunction
+
 function! s:source.get_complete_position(context)
     if neocomplete#within_comment()
+        return -1
+    endif
+    " skip if looks like keyword
+    if sqlcompl#looks_like_keyword(matchstr(a:context.input, '\w\+$'))
         return -1
     endif
 
@@ -83,12 +97,12 @@ function! s:source.gather_candidates(context)
     endif
 
     try
-        let l:client= jsonrpc#client('127.0.0.1', 12345)
+        let l:client= sqlcompl#connect()
 
         let l:candidates= l:client.call(l:method, extend({
         \   'dbtype': get(l:config, 'dbtype', 'pg'),
-        \   'host': get(l:config, 'host', 'localhost'),
-        \   'port': get(l:config, 'port', 5432),
+        \   'host':   get(l:config, 'host', 'localhost'),
+        \   'port':   get(l:config, 'port', 5432),
         \   'dbname': l:config.dbname,
         \   'username': get(l:config, 'username', 'postgres'),
         \   'password': get(l:config, 'password', 'postgres'),
