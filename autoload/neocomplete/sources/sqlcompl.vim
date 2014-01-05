@@ -1,6 +1,6 @@
 "
 " Author: kamichidu
-" Last Change: 30-Dec-2013.
+" Last Change: 05-Jan-2014.
 " Lisence: The MIT License (MIT)
 " 
 " Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -50,7 +50,7 @@ function! s:source.hooks.on_init(context)
 endfunction
 
 function! s:source.get_complete_position(context)
-    if neocomplete#within_comment()
+    if sqlcompl#within_comment()
         return -1
     endif
     " skip if looks like keyword
@@ -82,6 +82,35 @@ function! s:source.gather_candidates(context)
         return []
     endif
 
+    let l:cache= get(a:context, 'source__cache', sqlcompl#cache())
+    let a:context.source__cache= l:cache
+
+    if !l:cache.has('databases')
+        try
+            let l:client= sqlcompl#connect()
+
+            let l:databases= l:client.call('databases', extend({
+            \   'dbtype': get(l:config, 'dbtype', 'pg'),
+            \   'host':   get(l:config, 'host', 'localhost'),
+            \   'port':   get(l:config, 'port', 5432),
+            \   'dbname': l:config.dbname,
+            \   'username': get(l:config, 'username', 'postgres'),
+            \   'password': get(l:config, 'password', 'postgres'),
+            \}, {}))
+
+            call l:cache.set('databases', l:databases)
+        catch /.*/
+            echoerr 'sqlcompl: caught an exception ... ' . v:exception
+        finally
+            if exists('l:client')
+                call l:client.close()
+            endif
+        endtry
+    endif
+    if !s:L.has(map(copy(l:cache.get('databases')), 'v:val.name'), l:config.dbname)
+        return []
+    endif
+
     let l:method= ''
     let l:analinfo= {}
     " dot completion
@@ -96,26 +125,36 @@ function! s:source.gather_candidates(context)
         let l:analinfo.schema= 'public'
     endif
 
-    try
-        let l:client= sqlcompl#connect()
+    let l:method_parameters= extend({
+    \   'dbtype': get(l:config, 'dbtype', 'pg'),
+    \   'host':   get(l:config, 'host', 'localhost'),
+    \   'port':   get(l:config, 'port', 5432),
+    \   'dbname': l:config.dbname,
+    \   'username': get(l:config, 'username', 'postgres'),
+    \   'password': get(l:config, 'password', 'postgres'),
+    \}, l:analinfo)
+    let l:cache_key= l:method . '/' . string(l:method_parameters)
+    if l:cache.has(l:cache_key)
+        let l:candidates= l:cache.get(l:cache_key)
+    else
+        try
+            let l:client= sqlcompl#connect()
 
-        let l:candidates= l:client.call(l:method, extend({
-        \   'dbtype': get(l:config, 'dbtype', 'pg'),
-        \   'host':   get(l:config, 'host', 'localhost'),
-        \   'port':   get(l:config, 'port', 5432),
-        \   'dbname': l:config.dbname,
-        \   'username': get(l:config, 'username', 'postgres'),
-        \   'password': get(l:config, 'password', 'postgres'),
-        \}, l:analinfo))
-    catch /.*/
-        echoerr 'sqlcompl: caught an exception ... ' . v:exception
-    finally
-        if exists('l:client')
-            call l:client.close()
-        endif
-    endtry
+            let l:candidates= l:client.call(l:method, l:method_parameters)
 
-    return map(l:candidates, 's:new_candidate(v:val)')
+            if !empty(l:candidates)
+                call l:cache.set(l:cache_key, l:candidates)
+            endif
+        catch /.*/
+            echoerr 'sqlcompl: caught an exception ... ' . v:exception
+        finally
+            if exists('l:client')
+                call l:client.close()
+            endif
+        endtry
+    endif
+
+    return map(deepcopy(l:candidates), 's:new_candidate(v:val)')
 endfunction
 
 function! s:new_candidate(table)

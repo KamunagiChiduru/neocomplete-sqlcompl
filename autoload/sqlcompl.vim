@@ -1,6 +1,6 @@
 "
 " Author: kamichidu
-" Last Change: 30-Dec-2013.
+" Last Change: 05-Jan-2014.
 " Lisence: The MIT License (MIT)
 "
 " Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -88,6 +88,33 @@ function! sqlcompl#connect() " {{{
     return jsonrpc#client(s:config_default.server_host, s:config_default.server_port)
 endfunction
 " }}}
+function! sqlcompl#within_comment() " {{{
+    return getline('.') =~# '--.*$'
+endfunction
+" }}}
+
+"""
+" cache utility.
+""
+function! sqlcompl#cache()
+    let l:obj= {
+    \   '_cache': {},
+    \}
+
+    function! l:obj.has(key)
+        return has_key(self._cache, a:key)
+    endfunction
+
+    function! l:obj.get(key)
+        return self._cache[a:key]
+    endfunction
+
+    function! l:obj.set(key, value)
+        let self._cache[a:key]= a:value
+    endfunction
+
+    return l:obj
+endfunction
 
 let &cpo= s:save_cpo
 unlet s:save_cpo

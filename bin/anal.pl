@@ -56,7 +56,7 @@ $server->reg_cb(
             $line=~ s/$trimer->re//g;
 
             my %fields;
-            @fields{@keys}= split /\s*\|\s*/, $line;
+            @fields{@keys}= map { $_=~ s/^\s+|\s+$//g; $_ } split /\|/, $line;
 
             push @databases, \%fields;
         }
