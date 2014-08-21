@@ -27,6 +27,7 @@ let s:source= {
 \   'kind': 'manual',
 \   'filetypes': {'sql': 1},
 \   'hooks': {},
+\   'min_pattern_length': 0,
 \}
 
 let s:detector= sqlom#detector#new()
