@@ -25,13 +25,11 @@ set cpo&vim
 let s:detector= {}
 
 function! s:detector.apply(context)
-    call vimconsole#log('detect start')
     if sqlom#util#in_comment([line('.'), col('.')])
         return -1
     endif
 
     let input= strpart(getline('.'), 0, col('.'))
-    call vimconsole#log('detect input="%s"', input)
 
     if input =~# '\.\w\+$'
         let a:context.precending= matchstr(input, '\w\+\ze\.\w\+$')
