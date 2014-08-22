@@ -31,12 +31,12 @@ function! s:detector.apply(context)
 
     let input= strpart(getline('.'), 0, col('.'))
 
-    if input =~# '\.\w\+$'
-        let a:context.precending= matchstr(input, '\w\+\ze\.\w\+$')
-        let a:context.incomplete= matchstr(input, '\.\zs\w\+$')
+    if input =~# '\.\w*$'
+        let a:context.precending= matchstr(input, '\w\+\ze\.\w*$')
+        let a:context.incomplete= matchstr(input, '\.\zs\w*$')
         let a:context.candidate_kinds= ['column']
 
-        return match(input, '\.\zs\w\+$')
+        return match(input, '\.\zs\w*$')
     elseif input =~# '\w\+$'
         let a:context.precending= ''
         let a:context.incomplete= matchstr(input, '\w\+$')
