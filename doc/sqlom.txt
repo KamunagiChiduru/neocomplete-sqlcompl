@@ -29,7 +29,9 @@ CONTENTS                                                      *sqlom-contents*
 
 Introduction                                              |sqlom-introduction|
 Install                                                        |sqlom-install|
+How to Use                                                  |sqlom-how-to-use|
 Interface                                                    |sqlom-interface|
+Features                                                      |sqlom-features|
 
 ==============================================================================
 INTRODUCTION                                              *sqlom-introduction*
@@ -40,17 +42,38 @@ TODO
 INSTALL                                                        *sqlom-install*
 
 If you use `Shougo/neobundle.vim', you can write below configuration to your
-.vimrc. 
+.vimrc.
 >
     NeoBundle 'kamichidu/vim-sqlom', {
-    \   'depends': ['kamichidu/vim-vdbc', 'kamichidu/vim-baumkuchen'],
+    \   'depends': ['kamichidu/vim-vdbc'],
     \}
 <
+
+==============================================================================
+HOW TO USE                                                  *sqlom-how-to-use*
+
+This plugin supports |'omnifunc'| and |neocomplete|.
+
+1. Using via |'omnifunc'|.
+>
+    autocmd FileType sql setlocal omnifunc=sqlom#complete
+<
+1. Using via |neocomplete|.
+
+    Automatically enabled without any configuration.
 
 ==============================================================================
 INTERFACE                                                    *sqlom-interface*
 
 TODO
+
+==============================================================================
+FEATURES                                                      *sqlom-features*
+
+Currently supported features:
+
+    1. table name completion
+    1. column name completion
 
 ==============================================================================
 vim:tw=78:ts=4:ft=help:norl:fen:
