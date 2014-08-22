@@ -35,7 +35,7 @@ function! s:completer.apply(context)
 
     let dsn= sqlom#util#get_dsn([1, 5])
 
-    if dsn !~# '\<dbname\s*=\s*\w\+'
+    if dsn !~# '\<dbname\s*=\s*\S\+'
         return []
     endif
 
