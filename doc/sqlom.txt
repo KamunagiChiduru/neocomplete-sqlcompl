@@ -62,6 +62,15 @@ This plugin supports |'omnifunc'| and |neocomplete|.
 
     Automatically enabled without any configuration.
 
+Let's complete with me.
+First, write dsn string to your buffer's 1st line. Or 2nd, 3rd, 4th and 5th
+line are okay.
+
+    e.g.
+    -- vdbc:pg*:dbname=xxx;username=xxx;
+
+Second, type any characters on your buffer. It will shows several table names.
+
 ==============================================================================
 INTERFACE                                                    *sqlom-interface*
 
@@ -72,8 +81,9 @@ FEATURES                                                      *sqlom-features*
 
 Currently supported features:
 
-    1. table name completion
-    1. column name completion
+1. table name completion
+
+1. column name completion
 
 ==============================================================================
 vim:tw=78:ts=4:ft=help:norl:fen:
