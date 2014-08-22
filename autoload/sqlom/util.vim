@@ -45,6 +45,17 @@ function! sqlom#util#in_comment(pos)
     return comment_start <= a:pos[1]
 endfunction
 
+function! sqlom#util#get_dsn(range)
+    for lnum in range(a:range[0], a:range[1])
+        let line= getline(lnum)
+
+        if line =~# '--\s*vdbc\>'
+            return matchstr(line, '--\s*\zs\<vdbc\>.*')
+        endif
+    endfor
+    return ''
+endfunction
+
 function! s:make_shorthand_regex(word, min_length)
     if strlen(a:word) <= a:min_length
         return a:word

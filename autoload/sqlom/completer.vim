@@ -33,19 +33,14 @@ function! s:completer.apply(context)
         return []
     endif
 
-    let conn_info= baumkuchen#of({
-    \   'ranges':      [[1, 5], [line('$') - 4, line('$')]],
-    \   'keys':        ['\<driver\>', '\<host\>', '\<port\>', '\<dbname\>', '\<username\>', '\<password\>'],
-    \   'assignments': ['\s*=\s*'],
-    \   'values':      ['\S\+'],
-    \}).map('%')
+    let dsn= sqlom#util#get_dsn([1, 5])
 
-    if !has_key(conn_info, 'dbname')
+    if dsn !~# '\<dbname\s*=\s*\w\+'
         return []
     endif
 
     try
-        let C= vdbc#connect(conn_info)
+        let C= vdbc#connect_by_dsn(dsn)
         let candidates= []
 
         if s:L.has(a:context.candidate_kinds, 'table')
